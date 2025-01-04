@@ -1,24 +1,60 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f2f5;
+  margin: 0;
+}
 
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-  }
-  form {
-    display: inline-block;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-  }
-  button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #0056b3;
-  }
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+#drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  width: 50%;
+}
+
+#drop-area.highlight {
+  border-color: #007bff;
+}
+
+.my-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+label.button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+label.button:hover {
+  background-color: #0056b3;
+}
+
+progress {
+  width: 100%;
+  margin-top: 20px;
+}
+
+#result {
+  margin-top: 20px;
+}
