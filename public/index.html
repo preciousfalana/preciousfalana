@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>File Upload</title>
+</head>
+<body>
+  <h1>Upload a File</h1>
+  <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required />
+    <button type="submit">Upload</button>
+  </form>
+  <div id="result"></div>
+  <script>
+    document.querySelector("#uploadForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      try {
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        const resultDiv = document.getElementById("result");
+
+        if (response.ok) {
+          resultDiv.innerHTML = `<p>${result.message}</p><p>Download Link: <a href="${result.downloadLink}" target="_blank">${result.downloadLink}</a></p>`;
+        } else {
+          resultDiv.innerHTML = `<p>${result.message}</p>`;
+        }
+      } catch (error) {
+        document.getElementById("result").innerHTML = `<p>An error occurred. Please try again.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
