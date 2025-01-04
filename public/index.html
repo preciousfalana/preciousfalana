@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <title>File Upload</title>
 </head>
 <body>
-  <h1>Upload a File</h1>
+  <h1>Upload Files</h1>
   <div id="drop-area">
     <form id="uploadForm" class="my-form">
-      <p>Drag and drop a file here or</p>
-      <input type="file" name="file" id="fileElem" required />
-      <label class="button" for="fileElem">Select a file</label>
+      <p>Drag and drop files here or</p>
+      <input type="file" name="files" id="fileElem" multiple required />
+      <label class="button" for="fileElem">Select files</label>
       <progress id="progressBar" value="0" max="100"></progress>
     </form>
   </div>
@@ -55,9 +56,9 @@
 
     function handleFiles(files) {
       if (files.length > 0) {
-        const file = files[0];
-        if (validateFile(file)) {
-          uploadFile(file);
+        const validFiles = Array.from(files).filter(validateFile);
+        if (validFiles.length > 0) {
+          uploadFiles(validFiles);
         }
       }
     }
@@ -66,35 +67,33 @@
       const maxSize = 10 * 1024 * 1024; // 10MB
 
       if (file.size > maxSize) {
-        alert('File size exceeds the 10MB limit.');
+        alert(`File size exceeds the 10MB limit: ${file.name}`);
         return false;
       }
 
       return true;
     }
 
-    async function uploadFile(file) {
+    async function uploadFiles(files) {
       const formData = new FormData();
-      formData.append('file', file);
+      files.forEach(file => formData.append('files', file));
 
       try {
         const response = await fetch('/upload', {
           method: 'POST',
           body: formData,
-          onUploadProgress: (event) => {
-            if (event.lengthComputable) {
-              const percentComplete = (event.loaded / event.total) * 100;
-              progressBar.value = percentComplete;
-            }
-          }
         });
 
-        const result = await response.json();
+        const results = await response.json();
 
         if (response.ok) {
-          resultDiv.innerHTML = `<p>${result.message}</p><p>Download Link: <a href="${result.downloadLink}" target="_blank">${result.downloadLink}</a></p><p>Category: ${result.category}</p>`;
+          resultDiv.innerHTML = results.map(result => `
+            <p>${result.message}</p>
+            <p>Download Link: <a href="${result.downloadLink}" target="_blank">${result.downloadLink}</a></p>
+            <p>Category: ${result.category}</p>
+          `).join('');
         } else {
-          resultDiv.innerHTML = `<p>${result.message}</p>`;
+          resultDiv.innerHTML = `<p>${results.message}</p>`;
         }
       } catch (error) {
         resultDiv.innerHTML = `<p>An error occurred. Please try again.</p>`;

@@ -13,53 +13,55 @@ const upload = multer();
 app.use(express.static(path.join(__dirname, "public")));
 
 // Endpoint for uploading files
-app.post("/upload", upload.single("file"), async (req, res) => {
-    if (!req.file) {
+app.post("/upload", upload.array("files"), async (req, res) => {
+    if (!req.files || req.files.length === 0) {
         return res.status(400).json({
-            message: "No file uploaded",
+            message: "No files uploaded",
         });
     }
 
     try {
-        // Compress the file
-        const compressedBuffer = zlib.gzipSync(req.file.buffer);
+        const results = await Promise.all(req.files.map(async (file) => {
+            // Compress the file
+            const compressedBuffer = zlib.gzipSync(file.buffer);
 
-        // Categorize the file based on its MIME type
-        const fileType = mime.lookup(req.file.originalname);
-        let category;
-        if (fileType.startsWith("image/")) {
-            category = "Image";
-        } else if (fileType.startsWith("video/")) {
-            category = "Video";
-        } else if (fileType.startsWith("text/")) {
-            category = "Text";
-        } else {
-            category = "Other";
-        }
-
-        const form = new FormData();
-        form.append("file", compressedBuffer, req.file.originalname + ".gz");
-
-        const response = await axios.post(
-            "https://file.io",
-            form,
-            {
-                headers: {
-                    ...form.getHeaders(),
-                },
+            // Categorize the file based on its MIME type
+            const fileType = mime.lookup(file.originalname);
+            let category;
+            if (fileType.startsWith("image/")) {
+                category = "Image";
+            } else if (fileType.startsWith("video/")) {
+                category = "Video";
+            } else if (fileType.startsWith("text/")) {
+                category = "Text";
+            } else {
+                category = "Other";
             }
-        );
 
-        console.log(response.data); // Log the full response data
+            const form = new FormData();
+            form.append("file", compressedBuffer, file.originalname + ".gz");
 
-        res.status(200).json({
-            message: "File uploaded successfully",
-            downloadLink: response.data.link, // Ensure this is the correct property
-            category: category,
-        });
+            const response = await axios.post(
+                "https://file.io",
+                form,
+                {
+                    headers: {
+                        ...form.getHeaders(),
+                    },
+                }
+            );
+
+            return {
+                message: "File uploaded successfully",
+                downloadLink: response.data.link,
+                category: category,
+            };
+        }));
+
+        res.status(200).json(results);
     } catch (error) {
         res.status(500).json({
-            message: "Error uploading file",
+            message: "Error uploading files",
             error: error.message,
         });
     }
