@@ -11,7 +11,7 @@
   <div id="drop-area">
     <form id="uploadForm" class="my-form">
       <p>Drag and drop a file here or</p>
-      <input type="file" name="file" id="fileElem" accept="image/*,video/*,text/*" required />
+      <input type="file" name="file" id="fileElem" required />
       <label class="button" for="fileElem">Select a file</label>
       <progress id="progressBar" value="0" max="100"></progress>
     </form>
@@ -63,17 +63,10 @@
     }
 
     function validateFile(file) {
-      const validTypes = ['image/', 'video/', 'text/'];
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      const fileType = file.type;
-
-      if (!validTypes.some(type => fileType.startsWith(type))) {
-        alert('Invalid file type. Only images, videos, and text files are allowed.');
-        return false;
-      }
+      const maxSize = 10 * 1024 * 1024; // 10MB
 
       if (file.size > maxSize) {
-        alert('File size exceeds the 5MB limit.');
+        alert('File size exceeds the 10MB limit.');
         return false;
       }
 
